@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "house-room-classifier"
+version = "0.1.0"
+description = ""
+authors = ["Kida de Morais Aly <kidademoraisaly@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.3"
+keras = "^3.7.0"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+

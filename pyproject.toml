@@ -8,11 +8,16 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pandas = "^2.2.3"
-keras = "^3.7.0"
-
+matplotlib = "^3.9.3"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+
+[tool.poetry.scripts]
+train_model = "scripts.train_model:main"
+image_loading="scripts.data_exploring:main"
 

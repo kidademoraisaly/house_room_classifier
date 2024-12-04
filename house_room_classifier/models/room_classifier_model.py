@@ -54,26 +54,18 @@ class RoomClassificationModel:
                     
                 ]
             )
-            # Custom CNN architecture, more simplified
-            # self.model = models.Sequential([
-            #     layers.Conv2D(32, (3, 3), activation='relu', 
-            #                   input_shape=(self.img_height, self.img_width, 3)),
-            #     layers.MaxPooling2D((2, 2)),
-            #     layers.Conv2D(64, (3, 3), activation='relu'),
-            #     layers.MaxPooling2D((2, 2)),
-            #     layers.Conv2D(64, (3, 3), activation='relu'),
-            #     layers.Flatten(),
-            #     layers.Dense(64, activation='relu'),
-            #     layers.Dropout(0.5),
-            #     layers.Dense(self.num_classes, activation='softmax')
-            # ])
-        self.model.compile(loss='categorical_crossentropy',
-                           optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.0001),
-                           # could be #optimizers.Adam(learning_rate=0.0001)
-                           metrics=['acc']
-                           )
+
+        self.model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+         
+        # self.model.compile(loss='categorical_crossentropy',
+        #                    optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.0001),
+        #                    # could be #optimizers.Adam(learning_rate=0.0001)
+        #                    metrics=['accuracy']
+        #                    )
     
-    def train(self, train_ds, val_ds, epochs=20, steps_per_epoch=100, validation_steps=50):
+    def train(self, train_ds, val_ds, epochs=10, steps_per_epoch=100, validation_steps=50):
         early_stopping=EarlyStopping(
             monitor='val_loss',
             patience=10,

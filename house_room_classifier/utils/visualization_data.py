@@ -33,11 +33,11 @@ def visualize_first_images(ds, class_names,num_images=9):
         visualize_first_images_batch(images_batch,class_names,labels,num_images)
     
 
-def visualize_first_image_augmented(ds, data_augmentation):
+def visualize_first_image_augmented(ds, data_augmentation, n_times=9):
     for image, _ in ds.take(1):
         plt.figure(figsize=(10, 10))
         first_image = image[0]
-        for i in range(9):
+        for i in range(n_times):
             ax = plt.subplot(3, 3, i + 1)
             augmented_image = data_augmentation(tf.expand_dims(first_image, 0))
             plt.imshow(augmented_image[0] / 255)

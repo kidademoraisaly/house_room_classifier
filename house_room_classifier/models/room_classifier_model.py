@@ -1,10 +1,14 @@
+# =====================================================
+# 1. Importing Libraries
+# =====================================================
 
 # from keras.api.applications import MobileNetV2
 # from keras.api.callbacks 
 # from keras.api import layers, models, optimizers
+
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import models,layers
+from tensorflow.keras import models, layers # layers provides building blocks for neural networks
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from house_room_classifier.models.model_architectures import ModelArchitectures
@@ -12,6 +16,11 @@ from house_room_classifier.data.preprocessing import apply_normalization,apply_a
 
 
 
+
+# =====================================================
+# 2. Class: RoomClassificationModel
+# (This class builds, trains, evaluates, and saves a CNN to classify images - like "bedroom", "kitchen", etc.)
+# =====================================================
 
 class RoomClassificationModel:
     def __init__(self, img_height=150,img_width=150, num_classes=5, architecture="custom_cnn_simple_1"):
@@ -147,7 +156,7 @@ class RoomClassificationModel:
         )
         history=self.model.fit(
             train_ds,
-            validation_data= val_ds,
+            validation_data=val_ds,
             #train_generator.batch_size,
             #steps_per_epoch=steps_per_epoch,
             epochs=self.training_config.epochs,         
@@ -157,6 +166,12 @@ class RoomClassificationModel:
         )
         return history
     
+    # ---------------------------------------------
+    # 2.4. Evaluating the Model
+    # --------------------------------------------- 
+
+    # This function is used to test the model's performance on the test dataset (that the model hasn’t seen during training or validation)
+    # It evaluates the loss and accuracy of the trained model on the provided test dataset
     def evaluate(self, test_ds):
         test_loss, test_accuracy=self.model.evaluate(test_ds)
         return{
@@ -164,6 +179,11 @@ class RoomClassificationModel:
             'test_accuracy':test_accuracy
         }
 
+    # ---------------------------------------------
+    # 2.4. Predicting the Model
+    # --------------------------------------------- 
+
+    # The predict() method of the model generates predictions based on the input data (the image in this case).
     def predit(self, image):
         return self.model.predict(image)
     

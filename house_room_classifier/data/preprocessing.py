@@ -1,4 +1,5 @@
 import tensorflow as tf
+import os
 
 def load_dataset(data_dir, img_height=150,img_width=150, batch_size=20,subset=None, validation_split=0.2,seed=123, shuffle=True):
     return tf.keras.utils.image_dataset_from_directory(

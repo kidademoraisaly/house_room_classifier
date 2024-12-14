@@ -55,9 +55,9 @@ def main():
     print(f"Total validation batches: {total_val_batches}")
     print(f"Total test batches: { total_test_batches}")
 
-    visualize_first_images(train_ds)
+    visualize_first_images(train_ds, class_names=train_ds.class_names,num_images=16)
 
-    visualize_first_images(val_ds)
+    visualize_first_images(val_ds, class_names=val_ds.class_names,num_images=12)
 
 
 if __name__=="__main__":

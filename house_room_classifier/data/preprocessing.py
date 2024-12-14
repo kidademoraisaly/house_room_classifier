@@ -1,7 +1,6 @@
 import tensorflow as tf
 
-
-def load_dataset(data_dir, img_height,img_width, batch_size,subset=None, validation_split=0.2,seed=123, shuffle=True):
+def load_dataset(data_dir, img_height=150,img_width=150, batch_size=20,subset=None, validation_split=0.2,seed=123, shuffle=True):
     return tf.keras.utils.image_dataset_from_directory(
             data_dir,
             image_size=(img_height,img_width),
@@ -53,67 +52,68 @@ def load_datasets(train_dir,val_dir=None,test_dir=None,img_height=150,img_width=
 
     return train_ds, val_ds, test_ds
 
-def apply_augmentations(dataset):
-    data_augmentation = tf.keras.Sequential([
-        tf.keras.layers.RandomFlip("horizontal"),
-        tf.keras.layers.RandomRotation(0.1),
-        tf.keras.layers.RandomZoom(0.1),
-    ])
-#     advanced_augmentations = tf.keras.Sequential([
-#     tf.keras.layers.RandomFlip("horizontal_and_vertical"),
-#     tf.keras.layers.RandomRotation(0.2),
-#     tf.keras.layers.RandomZoom(0.2),
-#     tf.keras.layers.RandomContrast(0.1),
-#     tf.keras.layers.RandomTranslation(height_factor=0.1, width_factor=0.1)
-# ])
-    normalization_layer = tf.keras.layers.Rescaling(1. / 255)
-    # Apply augmentations
-    dataset = dataset.map(lambda x, y: (data_augmentation(x, training=True), y))
-    # Apply normalization
-    return dataset.map(lambda x, y: (normalization_layer(x, training=True), y))
+def apply_augmentations(dataset,data_augmentation):
+    dataset = dataset.map(lambda x, y: (data_augmentation(x, training=True), y)
+                          ,num_parallel_calls=tf.data.AUTOTUNE
+                          )
+    return dataset
 
-def prepare_dataset(
-        train_dir=None,
-        val_dir=None,
-        test_dir=None,
-        train_ds=None,
-        val_ds=None,
-        test_ds=None,
-        img_height=150,
-        img_width=150,
-        batch_size=20,
-        validation_split=0.2,
-        seed=123
-):
-    if train_ds is None:
-        if train_dir is None:
-            raise ValueError("Either train_ds or train_dir must be provided")
+
+def apply_normalization(dataset,normalization):
+    return dataset.map(lambda x, y: (normalization(x), y)
+                       ,num_parallel_calls=tf.data.AUTOTUNE
+                       )
+
+
+
+# def prepare_dataset(
+#         train_dir=None,
+#         val_dir=None,
+#         test_dir=None,
+#         train_ds=None,
+#         val_ds=None,
+#         test_ds=None,
+#         img_height=150,
+#         img_width=150,
+#         batch_size=20,
+#         validation_split=0.2,
+#         seed=123
+
+# ):
+#     if train_ds is None:
+#         if train_dir is None:
+#             raise ValueError("Either train_ds or train_dir must be provided")
         
-        train_ds, val_ds,test_ds = load_datasets(
-            train_dir, 
-            val_dir, 
-            test_dir,
-            img_height, 
-            img_width, 
-            batch_size, 
-            validation_split, 
-            seed
-        )
+#         train_ds, val_ds,test_ds = load_datasets(
+#             train_dir, 
+#             val_dir, 
+#             test_dir,
+#             img_height, 
+#             img_width, 
+#             batch_size, 
+#             validation_split, 
+#             seed
+#         )
     
-    #train_ds, val_ds,test_ds=load_datasets(train_dir,val_dir,img_height,img_width,batch_size,validation_split,seed)
-    # Apply preprocessing
-    train_ds = apply_augmentations(train_ds)
+        
+
+#     train_ds = apply_augmentations(train_ds)
   
-    #we do not apply augumentation on validation data
-    val_ds = val_ds.map(lambda x, y: (tf.keras.layers.Rescaling(1. / 255)(x, training=True), y)) 
-    test_ds = test_ds.map(lambda x, y: (tf.keras.layers.Rescaling(1. / 255)(x, training=True), y))
+#     #we do not apply augumentation on validation data
+#     val_ds = val_ds.map(lambda x, y: (tf.keras.layers.Rescaling(1. / 255)(x, training=True), y)) 
+#     test_ds = test_ds.map(lambda x, y: (tf.keras.layers.Rescaling(1. / 255)(x, training=True), y))
 
     
-    AUTOTUNE=tf.data.AUTOTUNE
-    train_ds = train_ds.cache().prefetch(AUTOTUNE)
-    val_ds = val_ds.cache().prefetch(AUTOTUNE)
-    test_ds = test_ds.cache().prefetch(AUTOTUNE)
+#     AUTOTUNE=tf.data.AUTOTUNE
+#     train_ds = train_ds.cache().prefetch(AUTOTUNE)
+#     val_ds = val_ds.cache().prefetch(AUTOTUNE)
+#     test_ds = test_ds.cache().prefetch(AUTOTUNE)
 
-    return train_ds, val_ds,test_ds
+#     return train_ds, val_ds,test_ds
+
+
+
+
+
 
 

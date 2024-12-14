@@ -59,6 +59,29 @@ def apply_augmentations(dataset,data_augmentation):
                           )
     return dataset
 
+def apply_augmentations_image(image, data_augmentation):
+    """
+    Apply augmentations to a single image.
+    
+    Args:
+        image: The input image (as a Tensor or NumPy array).
+        data_augmentation: A Sequential model with augmentation layers.
+    
+    Returns:
+        Augmented image.
+    """
+    # Expand dimensions if necessary (to simulate a batch of 1)
+    if len(image.shape) == 3:  # Assuming image is (H, W, C)
+        image = tf.expand_dims(image, axis=0)
+    
+    # Apply augmentations
+    augmented_image = data_augmentation(image, training=True)
+    
+    # Remove the added batch dimension
+    return tf.squeeze(augmented_image, axis=0)
+
+
+
 
 def apply_normalization(dataset,normalization):
     return dataset.map(lambda x, y: (normalization(x), y)

@@ -35,7 +35,7 @@ def main():
             img_height=IMG_HEIGHT,
             img_width=IMG_WIDTH,
             num_classes=NUM_CLASSES,
-            architecture="custom_cnn_complex_v1"
+            architecture="pretrained_resnet50_fine_v1"
         )
         
         room_classifier.build_model()
@@ -50,7 +50,7 @@ def main():
         #results=room_classifier.evaluate(test_ds)
         #print("Test results", results)
         plot_training_results(history)
-        room_classifier.model.save('models/room_classifier_model.keras')
+        room_classifier.model.save('models/room_classifier_model_pretrained_resnet50_fine_v1.keras')
 
 
 

@@ -12,6 +12,7 @@ matplotlib = "^3.9.3"
 scikit-learn = "^1.5.2"
 seaborn = "^0.13.2"
 jupyter = "^1.1.1"
+keras-tuner = "^1.4.7"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -28,4 +29,5 @@ train_model = "scripts.train_model:main"
 image_loading="scripts.data_exploring:main"
 visualize_predictions="scripts.visualize_predictions:main"
 evaluate_model="scripts.evaluate_model:main"
+bayesian_tunning="scripts.bayesian_tunning:main"
 

@@ -68,7 +68,13 @@ class ModelArchitectures:
             include_top=False,
             weights='imagenet'
         )
-        base_model.trainable = False
+        #base_model.trainable = False
+
+         # Fine-tune later layers
+        base_model.trainable = True
+        for layer in base_model.layers[:-20]:
+            layer.trainable = False
+
         
         model = models.Sequential([
             base_model,
@@ -101,13 +107,35 @@ class ModelArchitectures:
         ])
         return model
     
+    def pretrained_resnet50_full_training(img_height, img_width, num_classes):
+        """ResNet50 with training of all layers"""
+        base_model = tf.keras.applications.ResNet50(
+            input_shape=(img_height, img_width, 3),
+            include_top=False,
+            weights='imagenet'
+        )
+        
+        # Make all layers trainable
+        base_model.trainable = True
+        
+        model = models.Sequential([
+            base_model,
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(512, activation='relu'),
+            #layers.Dense(512, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01))
+            layers.Dropout(0.5),
+            layers.Dense(num_classes, activation='softmax')
+        ])
+        
+        return model
+    
     @staticmethod
     def get_training_config(archicteture):
         configs={
             'custom_cnn_simple_v1': TrainingConfig(
                 epochs=30,
-                learning_rate=0.001,
-                early_stopping_patience=5,
+                learning_rate=0.0001,
+                early_stopping_patience=10,
                 use_data_augmentation=False
             ),
             'custom_cnn_complex_v1': TrainingConfig(
@@ -117,9 +145,9 @@ class ModelArchitectures:
                 use_data_augmentation=True
             ),
             'pretrained_mobilenet_base_v1': TrainingConfig(
-                epochs=15,
-                learning_rate=0.00001,
-                early_stopping_patience=8,
+                epochs=50,
+                learning_rate=0.0001,
+                early_stopping_patience=10,
                 use_data_augmentation=True
             ),
             'pretrained_resnet50_fine_v1': TrainingConfig(
@@ -128,6 +156,12 @@ class ModelArchitectures:
                 early_stopping_patience=12,
                 use_data_augmentation=True
             )
+            ,'pretrained_resnet50_full_training': TrainingConfig(
+                epochs=20,
+                learning_rate=0.00001,
+                early_stopping_patience=3,
+                use_data_augmentation=True
+            ),
 
         }
         return configs.get(archicteture, {}) 
@@ -135,10 +169,17 @@ class ModelArchitectures:
     @staticmethod
     def get_augmentation_strategy(architecture):
         augmentation_strategies={
+            # 'custom_cnn_simple_v1': tf.keras.Sequential([
+            #     tf.keras.layers.RandomFlip("horizontal"),
+            #     tf.keras.layers.RandomRotation(0.1),
+            #     tf.keras.layers.RandomZoom(0.1), 
+            # ]),
             'custom_cnn_simple_v1': tf.keras.Sequential([
-                tf.keras.layers.RandomFlip("horizontal"),
-                tf.keras.layers.RandomRotation(0.1),
-                tf.keras.layers.RandomZoom(0.1), 
+                tf.keras.layers.RandomFlip("horizontal_and_vertical"),
+                tf.keras.layers.RandomRotation(0.2),
+                tf.keras.layers.RandomZoom(0.2),
+                tf.keras.layers.RandomContrast(0.1),
+                tf.keras.layers.RandomTranslation(height_factor=0.1, width_factor=0.1)
             ]),
             'custom_cnn_complex_v1': tf.keras.Sequential([
                 tf.keras.layers.RandomFlip("horizontal_and_vertical"),
@@ -153,8 +194,17 @@ class ModelArchitectures:
                 tf.keras.layers.RandomZoom(0.1),
                 tf.keras.layers.RandomContrast(0.1),
                 tf.keras.layers.RandomTranslation(height_factor=0.1, width_factor=0.1)
-            ]),
+            ])
+            ,
             'pretrained_resnet50_fine_v1': tf.keras.Sequential([
+                tf.keras.layers.RandomFlip("horizontal_and_vertical"),
+                tf.keras.layers.RandomRotation(0.2),
+                tf.keras.layers.RandomZoom(0.1),
+                tf.keras.layers.RandomContrast(0.1),
+                tf.keras.layers.RandomTranslation(height_factor=0.1, width_factor=0.1)
+            ])
+            ,
+            'pretrained_resnet50_full_training': tf.keras.Sequential([
                 tf.keras.layers.RandomFlip("horizontal_and_vertical"),
                 tf.keras.layers.RandomRotation(0.2),
                 tf.keras.layers.RandomZoom(0.1),

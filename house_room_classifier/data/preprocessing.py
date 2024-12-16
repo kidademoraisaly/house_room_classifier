@@ -27,7 +27,8 @@ def load_datasets(train_dir,val_dir=None,test_dir=None,img_height=150,img_width=
             img_width,
             batch_size,
             subset='training',
-            validation_split=validation_split *0.2,  # Combined split for validation and test
+            #validation_split=validation_split *0.2,  # Combined split for validation and test
+            validation_split=validation_split,
             seed=seed
         )
         val_ds = load_dataset(
@@ -36,20 +37,22 @@ def load_datasets(train_dir,val_dir=None,test_dir=None,img_height=150,img_width=
             img_width, 
             batch_size, 
             subset='validation', 
-            validation_split=validation_split *2,  # Combined split for validation and test
+            #validation_split=validation_split *2,  # Combined split for validation and test
+            validation_split=validation_split,
             shuffle=False, 
             seed=seed
         )
-        test_ds = load_dataset(
-            train_dir, 
-            img_height, 
-            img_width, 
-            batch_size, 
-            subset='test',  # Use 'test' subset
-            validation_split=validation_split *2,  # Combined split for validation and test
-            shuffle=False, 
-            seed=seed
-        )
+        # test_ds = load_dataset(
+        #     train_dir, 
+        #     img_height, 
+        #     img_width, 
+        #     batch_size, 
+        #     subset='test',  # Use 'test' subset
+        #     validation_split=validation_split *2,  # Combined split for validation and test
+        #     shuffle=False, 
+        #     seed=seed
+        # )^
+        test_ds=None
 
     return train_ds, val_ds, test_ds
 

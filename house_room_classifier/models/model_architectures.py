@@ -21,13 +21,13 @@ class ModelArchitectures:
                 [
                     layers.Conv2D(32, (3,3), activation='relu', input_shape=(img_height,img_width,3), kernel_regularizer=tf.keras.regularizers.l2(0.001)),
                     layers.MaxPooling2D((2,2)),
-                    layers.Conv2D(64, (3,3), activation='relu',  kernel_regularizer=tf.keras.regularizers.l2(0.001)),
+                    layers.Conv2D(64, (3,3), activation='relu'),
                     layers.MaxPooling2D((2,2)),
-                    layers.Conv2D(128, (3,3), activation='relu',  kernel_regularizer=tf.keras.regularizers.l2(0.001)),
+                    layers.Conv2D(128, (3,3), activation='relu'),
                     layers.MaxPooling2D((2,2)),
                     layers.Flatten(),
                     layers.Dropout(0.6),
-                    layers.Dense(512, activation='relu' ,kernel_regularizer=tf.keras.regularizers.l2(0.001)),
+                    layers.Dense(512, activation='relu'),
                     layers.Dropout(0.6),
                     layers.Dense(num_classes, activation="softmax")
                     #layers.Dense(self.num_classes, name="outputs")
@@ -152,7 +152,7 @@ class ModelArchitectures:
             ),
             'pretrained_resnet50_fine_v1': TrainingConfig(
                 epochs=25,
-                learning_rate=0.00001,
+                learning_rate=0.0001,
                 early_stopping_patience=12,
                 use_data_augmentation=True
             )

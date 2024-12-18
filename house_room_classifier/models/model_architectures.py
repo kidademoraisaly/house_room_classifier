@@ -132,7 +132,7 @@ class ModelArchitectures:
     def get_training_config(archicteture):
         configs={
             'custom_cnn_simple_v1': TrainingConfig(
-                epochs=30,
+                epochs=15,
                 learning_rate=0.0001,
                 early_stopping_patience=10,
                 use_data_augmentation=False

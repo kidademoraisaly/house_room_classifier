@@ -157,7 +157,7 @@ class ModelArchitectures:
                 use_data_augmentation=True
             )
             ,'pretrained_resnet50_full_training': TrainingConfig(
-                epochs=20,
+                epochs=25,
                 learning_rate=0.00001,
                 early_stopping_patience=3,
                 use_data_augmentation=True

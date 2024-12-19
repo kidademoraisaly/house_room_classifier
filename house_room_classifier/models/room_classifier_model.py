@@ -113,6 +113,7 @@ class RoomClassificationModel:
             metrics=['accuracy']
         )
     
+    @tf.autograph.experimental.do_not_convert
     def prepare_dataset(self, train_ds, val_ds, test_ds):
         # Get augmentation strategy
         augmentation_strategy = ModelArchitectures.get_augmentation_strategy(self.architecture)

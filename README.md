@@ -1,7 +1,5 @@
 # House Room Classifier
 
----
-
 ## Table of Contents
 1. [Project Overview](#project-overview)
 2. [Dataset](#dataset)
@@ -11,13 +9,9 @@
 7. [Credits](#credits)
 8. [License](#license)
 
----
-
 ## 1. Project Overview
 
 This repository contains the implementation of a deep learning-based room classification system for room type images. Using both custom Convolutional Neural Networks (CNN) and pretrained models, this project explores various techniques to optimize accuracy and minimize overfitting.
-
----
 
 ## 2. Dataset
 
@@ -25,15 +19,11 @@ The project uses two datasets:
 - **Small Dataset**: Initially used for training and evaluation (5,192 images).
 - **Large Dataset**: Larger and more balanced (130,995 images).
 
----
-
 ## 3. Models and Architectures
 
 - **Simple CNN Model**: A lightweight CNN model for quick experimentation.
 - **Complex CNN Model**: A deeper custom CNN with additional layers and regularization.  
 - **Pretrained Models**: MobileNetV2 and ResNet50.
-
----
 
 ## 4. Installation
 

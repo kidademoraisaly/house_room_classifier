@@ -30,4 +30,4 @@ image_loading="scripts.data_exploring:main"
 visualize_predictions="scripts.visualize_predictions:main"
 evaluate_model="scripts.evaluate_model:main"
 bayesian_tunning="scripts.bayesian_tunning:main"
-
+grad_cam="scripts.grad_cam_results:main"

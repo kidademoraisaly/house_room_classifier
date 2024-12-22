@@ -3,8 +3,6 @@ from house_room_classifier.models.room_classifier_model import RoomClassificatio
 import pathlib
 import os
 from house_room_classifier.utils.visualization_data import plot_training_results
-
-
 import tensorflow as tf
 
 def main():
@@ -14,8 +12,6 @@ def main():
         IMG_WIDTH=150
         BATCH_SIZE=20
         NUM_CLASSES=5
-        #EPOCHS=30
-
         train_ds_dir=pathlib.Path(os.path.join(DATA_DIR,"train"))
         val_ds_dir=pathlib.Path(os.path.join(DATA_DIR,"valid"))
         test_ds_dir=pathlib.Path(os.path.join(DATA_DIR,"test"))
@@ -45,10 +41,6 @@ def main():
              val_ds,
              
          )
-
-
-        #results=room_classifier.evaluate(test_ds)
-        #print("Test results", results)
         plot_training_results(history)
         room_classifier.model.save('models/room_classifier_model_pretrained_resnet50_fine_v1.keras')
 

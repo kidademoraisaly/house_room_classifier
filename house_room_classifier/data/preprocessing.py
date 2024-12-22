@@ -1,5 +1,7 @@
 import tensorflow as tf
 import os
+import hashlib
+from collections import defaultdict
 
 def load_dataset(data_dir, img_height=150,img_width=150, batch_size=20,subset=None, validation_split=0.2,seed=123, shuffle=True):
     return tf.keras.utils.image_dataset_from_directory(
@@ -20,14 +22,12 @@ def load_datasets(train_dir,val_dir=None,test_dir=None,img_height=150,img_width=
         val_ds = load_dataset(val_dir, img_height, img_width, batch_size, shuffle=False, seed=seed)
         test_ds = load_dataset(test_dir, img_height, img_width, batch_size, shuffle=False, seed=seed)
     else:
-        # Split train directory into training, validation, and test sets
         train_ds = load_dataset( 
             train_dir,
             img_height,
             img_width,
             batch_size,
             subset='training',
-            #validation_split=validation_split *0.2,  # Combined split for validation and test
             validation_split=validation_split,
             seed=seed
         )
@@ -37,21 +37,10 @@ def load_datasets(train_dir,val_dir=None,test_dir=None,img_height=150,img_width=
             img_width, 
             batch_size, 
             subset='validation', 
-            #validation_split=validation_split *2,  # Combined split for validation and test
             validation_split=validation_split,
             shuffle=False, 
             seed=seed
         )
-        # test_ds = load_dataset(
-        #     train_dir, 
-        #     img_height, 
-        #     img_width, 
-        #     batch_size, 
-        #     subset='test',  # Use 'test' subset
-        #     validation_split=validation_split *2,  # Combined split for validation and test
-        #     shuffle=False, 
-        #     seed=seed
-        # )^
         test_ds=None
 
     return train_ds, val_ds, test_ds
@@ -63,84 +52,36 @@ def apply_augmentations(dataset,data_augmentation):
     return dataset
 
 def apply_augmentations_image(image, data_augmentation):
-    """
-    Apply augmentations to a single image.
-    
-    Args:
-        image: The input image (as a Tensor or NumPy array).
-        data_augmentation: A Sequential model with augmentation layers.
-    
-    Returns:
-        Augmented image.
-    """
-    # Expand dimensions if necessary (to simulate a batch of 1)
     if len(image.shape) == 3:  # Assuming image is (H, W, C)
         image = tf.expand_dims(image, axis=0)
-    
-    # Apply augmentations
     augmented_image = data_augmentation(image, training=True)
-    
-    # Remove the added batch dimension
     return tf.squeeze(augmented_image, axis=0)
-
-
-
 
 def apply_normalization(dataset,normalization):
     return dataset.map(lambda x, y: (normalization(x), y)
                        ,num_parallel_calls=tf.data.AUTOTUNE
                        )
 
+def compute_image_hash(image_path):
+    """Compute the hash of an image file."""
+    with open(image_path, "rb") as f:
+        image_bytes = f.read()
+    return hashlib.md5(image_bytes).hexdigest()
 
+def find_and_remove_duplicates(dataset_path):
+    """Find and remove duplicate image files in a dataset."""
+    hash_dict = defaultdict(list)
+    duplicate_set = set()
+    for root, _, files in os.walk(dataset_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif")):
+                file_hash = compute_image_hash(file_path)
+                hash_dict[file_hash].append(file_path)
+    duplicates = {hash_value: paths for hash_value, paths in hash_dict.items() if len(paths) > 1}
+    for hash_value, paths in duplicates.items():
+        duplicate_set.update(paths[1:])  # Keep the first occurrence, remove others
+        for path in paths[1:]:
+            os.remove(path)
 
-# def prepare_dataset(
-#         train_dir=None,
-#         val_dir=None,
-#         test_dir=None,
-#         train_ds=None,
-#         val_ds=None,
-#         test_ds=None,
-#         img_height=150,
-#         img_width=150,
-#         batch_size=20,
-#         validation_split=0.2,
-#         seed=123
-
-# ):
-#     if train_ds is None:
-#         if train_dir is None:
-#             raise ValueError("Either train_ds or train_dir must be provided")
-        
-#         train_ds, val_ds,test_ds = load_datasets(
-#             train_dir, 
-#             val_dir, 
-#             test_dir,
-#             img_height, 
-#             img_width, 
-#             batch_size, 
-#             validation_split, 
-#             seed
-#         )
-    
-        
-
-#     train_ds = apply_augmentations(train_ds)
-  
-#     #we do not apply augumentation on validation data
-#     val_ds = val_ds.map(lambda x, y: (tf.keras.layers.Rescaling(1. / 255)(x, training=True), y)) 
-#     test_ds = test_ds.map(lambda x, y: (tf.keras.layers.Rescaling(1. / 255)(x, training=True), y))
-
-    
-#     AUTOTUNE=tf.data.AUTOTUNE
-#     train_ds = train_ds.cache().prefetch(AUTOTUNE)
-#     val_ds = val_ds.cache().prefetch(AUTOTUNE)
-#     test_ds = test_ds.cache().prefetch(AUTOTUNE)
-
-#     return train_ds, val_ds,test_ds
-
-
-
-
-
-
-
+    return duplicate_set, len(duplicate_set)

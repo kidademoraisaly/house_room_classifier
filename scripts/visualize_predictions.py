@@ -8,8 +8,6 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
-
    
 def main():
     DATA_DIR = "data"
@@ -49,7 +47,7 @@ def main():
     plt.tight_layout()
     plt.show()
   
-    #visualize_first_images_batch(original_image_batch,class_names,labels=predictions,num_images=9)
+    
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,23 @@
-#house_room_classifier/house_room_classifier/data
--data_exploration.py: our functions we use when exploring the data are stored here.
--preprocessing.py our functions used for preprocessing are defined and stored here.
-#house_room_classifier/house_room_classifier/models
--model_architectures.py: all the models trained and their architectures are defined here.
--room_classifier_model.py: used for building, training and saving all the models trained.
--training_config.py: sets the configuration for hyper-parameters.
-#house_room_classifier/house_room_classifier/utils
--visualization_data.py: our custom functions to visualize are stored here and called on the notebook later.
-#house_room_classifier/notebooks
--exploration_prepocessing.ipynb: this is the notebook where we explore the data and do preprocessing.
--model_training.ipynb: this is the notebook where we train our models.
--predictions.ipynb: this is the notebook where we show our predictions on the test data and evaluate our final models.
-#house_room_classifier/scripts
--has some .py files where we have tested our functions and methods before using them on notebooks.
+# House Room Classifier
+
+## Directory Structure
+
+### Data Directory (`house_room_classifier/house_room_classifier/data`)
+- **`data_exploration.py`**: Contains functions for exploring the dataset.
+- **`preprocessing.py`**: Includes functions for preprocessing the data.
+
+### Models Directory (`house_room_classifier/house_room_classifier/models`)
+- **`model_architectures.py`**: Defines all the trained models and their architectures.
+- **`room_classifier_model.py`**: Used for building, training, and saving all the models.
+- **`training_config.py`**: Sets the configurations for hyperparameters.
+
+### Utilities Directory (`house_room_classifier/house_room_classifier/utils`)
+- **`visualization_data.py`**: Contains custom visualization functions, later used in the notebooks.
+
+### Notebooks Directory (`house_room_classifier/notebooks`)
+- **`exploration_preprocessing.ipynb`**: Notebook for data exploration and preprocessing.
+- **`model_training.ipynb`**: Notebook for training the models.
+- **`predictions.ipynb`**: Notebook for making predictions on test data and evaluating the final models.
+
+### Scripts Directory (`house_room_classifier/scripts`)
+- Contains various `.py` files for testing functions and methods before integrating them into the notebooks.

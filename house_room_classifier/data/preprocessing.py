@@ -1,80 +1,87 @@
 import tensorflow as tf
 import os
+import hashlib
+from collections import defaultdict
 
-# The function prepare_dataset() prepares image datasets for training and validation
-def prepare_dataset(
-        data_dir,                    # Path to the directory containing the image data
-        img_height=150,              # Dimensions to resize the images to (default is 150x150 pixels)
-        img_width=150,
-        batch_size=20,               # Number of images to process in one step (default is 20)
-        validation_split=0.2,        # Proportion of the data to use for validation (default is 20%), in case we dont have a validation folder (but we have)
-        seed=123                     # Ensures reproducibility of random operations like shuffling
-):
-    train_ds=tf.keras.utils.image_dataset_from_directory(
-        data_dir,
-        shuffle=True,
-        validation_split=validation_split,
-        subset='training',
-        seed=seed,
-        image_size=(img_height, img_width),
-        batch_size=batch_size
+def load_dataset(data_dir, img_height=150,img_width=150, batch_size=20,subset=None, validation_split=0.2,seed=123, shuffle=True):
+    return tf.keras.utils.image_dataset_from_directory(
+            data_dir,
+            image_size=(img_height,img_width),
+            batch_size=batch_size,
+            shuffle=shuffle,
+            validation_split=validation_split if subset else None,
+            subset=subset,
+            seed=seed
     )
 
-    val_ds=tf.keras.utils.image_dataset_from_directory(
-        data_dir,
-        shuffle=True,
-        validation_split=validation_split,
-        subset='validation',
-        seed=seed,
-        image_size=(img_height
-                    ,img_width),
-        batch_size=batch_size
-    )
-    
-    # Applies random transformations (data augmentation) to the training images to simulate a more diverse dataset
-    data_augmentation=tf.keras.Sequential(
-        [
-            tf.keras.layers.RandomFlip("horizontal"),     # Randomly flips images horizontally
-            tf.keras.layers.RandomRotation(0.1),          # Randomly rotates images by up to 10% of 360°
-            tf.keras.layers.RandomZoom(0.1),              # Randomly zooms into the images by 10%
-        ]
-    )
-  
-    # Normalizes pixel values of the images to be between 0 and 1 (instead of 0 to 255). This is necessary for faster and more efficient training. 
-    normalization_layer=tf.keras.layers.Rescaling(1./255)
+def load_datasets(train_dir,val_dir=None,test_dir=None,img_height=150,img_width=150,batch_size=20,validation_split=0.2,seed=123):
 
-    # Applying Data Augumentation
-    train_ds=train_ds.map(
-        lambda x, y:(data_augmentation(x,training=True),y)
-    )
+    if val_dir and test_dir:
+        # If separate directories are provided for all sets
+        train_ds = load_dataset(train_dir, img_height, img_width, batch_size, seed=seed)
+        val_ds = load_dataset(val_dir, img_height, img_width, batch_size, shuffle=False, seed=seed)
+        test_ds = load_dataset(test_dir, img_height, img_width, batch_size, shuffle=False, seed=seed)
+    else:
+        train_ds = load_dataset( 
+            train_dir,
+            img_height,
+            img_width,
+            batch_size,
+            subset='training',
+            validation_split=validation_split,
+            seed=seed
+        )
+        val_ds = load_dataset(
+            train_dir, 
+            img_height, 
+            img_width, 
+            batch_size, 
+            subset='validation', 
+            validation_split=validation_split,
+            shuffle=False, 
+            seed=seed
+        )
+        test_ds=None
 
-    # Applying Normalization
-    train_ds=train_ds.map(
-        lambda x, y:(normalization_layer(x,training=True),y)
-    )
+    return train_ds, val_ds, test_ds
 
-    val_ds=val_ds.map(
-        lambda x, y:(normalization_layer(x,training=True),y)
-    )
+def apply_augmentations(dataset,data_augmentation):
+    dataset = dataset.map(lambda x, y: (data_augmentation(x, training=True), y)
+                          ,num_parallel_calls=tf.data.AUTOTUNE
+                          )
+    return dataset
 
-    # Prefetching loads the data in parallel while the model is training, making the training process faster and more efficient
-    AUTOTUNE=tf.data.AUTOTUNE
-    train_ds.prefetch(AUTOTUNE)
-    val_ds=val_ds.prefetch(AUTOTUNE)
+def apply_augmentations_image(image, data_augmentation):
+    if len(image.shape) == 3:  # Assuming image is (H, W, C)
+        image = tf.expand_dims(image, axis=0)
+    augmented_image = data_augmentation(image, training=True)
+    return tf.squeeze(augmented_image, axis=0)
 
-    return train_ds, val_ds            # The function returns the prepared training dataset (train_ds) and validation dataset (val_ds)
+def apply_normalization(dataset,normalization):
+    return dataset.map(lambda x, y: (normalization(x), y)
+                       ,num_parallel_calls=tf.data.AUTOTUNE
+                       )
 
+def compute_image_hash(image_path):
+    """Compute the hash of an image file."""
+    with open(image_path, "rb") as f:
+        image_bytes = f.read()
+    return hashlib.md5(image_bytes).hexdigest()
 
-def __init__():
-    prepare_dataset("/data/preprocessing.py")
-  
+def find_and_remove_duplicates(dataset_path):
+    """Find and remove duplicate image files in a dataset."""
+    hash_dict = defaultdict(list)
+    duplicate_set = set()
+    for root, _, files in os.walk(dataset_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif")):
+                file_hash = compute_image_hash(file_path)
+                hash_dict[file_hash].append(file_path)
+    duplicates = {hash_value: paths for hash_value, paths in hash_dict.items() if len(paths) > 1}
+    for hash_value, paths in duplicates.items():
+        duplicate_set.update(paths[1:])  # Keep the first occurrence, remove others
+        for path in paths[1:]:
+            os.remove(path)
 
-#    test_generator = test_datagen.flow_from_directory(
-#         data_dir,
-#         target_size=(img_height, img_width),
-#         batch_size=batch_size,
-#         class_mode='categorical',
-#         shuffle=False
-#     )
-
-#     return train_generator, validation_generator, test_generator
+    return duplicate_set, len(duplicate_set)
